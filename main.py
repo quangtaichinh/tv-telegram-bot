@@ -21,6 +21,26 @@ def send_telegram(text: str):
 @app.post("/tv")
 async def tv(req: Request):
     raw = (await req.body()).decode("utf-8", errors="ignore").strip()
+    print("=== RECEIVED /tv ===")
+    print(raw)
+
+    try:
+        data = json.loads(raw)
+        msg = f"""🚨 {data.get("action","ALERT")}
+Symbol: {data.get("symbol","")}
+TF: {data.get("timeframe","")}
+Price: {data.get("price","")}
+RSI: {data.get("rsi","")}
+Power: {data.get("power","")}
+VolRatio: {data.get("volRatio","")}
+Note: {data.get("note","")}
+"""
+    except Exception as e:
+        print("JSON parse error:", e)
+        msg = "📣 TV Alert\n" + raw
+
+    send_telegram(msg)
+    return {"ok": True}
 
     # TradingView sẽ gửi JSON từ alert() trong Pine
     try:
@@ -48,3 +68,4 @@ async def tv(req: Request):
 
     send_telegram(msg)
     return {"ok": True}
+
